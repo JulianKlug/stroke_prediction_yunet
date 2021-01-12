@@ -9,4 +9,11 @@ The current main.py should be executable if the GPU and environment setting is c
 ## Environment requirements
 
 - Python 3.6
-- Dependencies in requirements.txt file
+- Dependencies in requirements.txt file: `pip install -r requirements.txt`
+  - Choose tensorflow gpu or cpu depending on your processor of choice
+
+## Data preprocessing
+
+- Data needs to have width and height divisible by 16 (apply padding first)
+  - Example: normalized GSD should be padded to (80, 96, 79) 
+- Geneva Stroke Dataset can be transformed to HDF5 and NIFTI with functions in /data_prepro
