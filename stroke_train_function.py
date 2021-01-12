@@ -25,7 +25,7 @@ def get_volume_info_from_dir(dict_sample_info, list_subjects,ext_data,num_of_aug
     num_subject = len(list_subjects)
     print('############################ total subject number:', num_subject)
     for subj in list_subjects:
-        dir_list_subj = dict_sample_info + subj
+        dir_list_subj = os.path.join(dict_sample_info, subj)
         result_list = result_list + get_volume_info_from_subjects(dir_list_subj,ext_data,num_of_aug)
 
     print('get {0} subject with {1} {2} file pairs'.format(
@@ -146,6 +146,12 @@ def stroke_train_img_segmentation(dir_of_train = '/data/yuanxie/stroke_preproces
     generator_sanitize_data = False
     generator_axis_slice = 0
     print('setup parameters')
+
+    '''
+    validate parameters   
+    '''
+
+
 
     '''
     setup model

@@ -81,13 +81,13 @@ def load_nii(path):
   output = np.maximum(0, np.nan_to_num(output, 0))
   return output
 
-def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_brainmask = '/Users/admin/controls_stroke_DL/001/inputs_aug0.hdf5',
+def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke = '/data/yuanxie/stroke_preprocess173/', path_generic_brain_mask = '/Users/admin/controls_stroke_DL/001/inputs_aug0.hdf5',
                 subj_list = ['30077A'], model_name = 'test_model',mask_contrast = 0, threshold_true =0.5, threshold_pred = 0.5,printout=True,upper_lim=91,lower_lim=0,savedata=True,dwimask=True):
     '''
 
     :param dir_result: where to find predicted h5 file
     :param dir_stroke: where to find input h5 file
-    :param dir_brainmask: where to find T1 template h5 file
+    :param path_generic_brain_mask: where to find T1 template h5 file
     :param subj_list: list of the test cases
     :param model_name: model name
     :param mask_contrast: contrast for PWI masking. 4 = MTT, 5 = Tmax, corresponding to the input.h5 4th dimension.
@@ -95,9 +95,7 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
     :param threshold_pred: when prediction > threshold_pred, count as positive
     :return: the list_result containing auc, precision, recall , dice, auc all.
     '''
-    '''
-    setup gpu
-    '''
+
     list_subject = sorted(subj_list)
     # print(list_subject)
 
@@ -107,7 +105,7 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
     for subject in list_subject:
 
         # load nifti
-        path_gt = dir_stroke + "{}/LESION.nii".format(subject)
+        path_gt = os.path.join(dir_stroke, subject, "LESION.nii")
 
         if not os.path.exists(path_gt):
             print('no ground truth file for', subject)
@@ -115,12 +113,18 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
 
         data_gt = load_nii(path_gt)
 
-        name_output = 'prediction_' + model_name + '_{0}'.format(subject)  + '.nii'
+        name_output = 'prediction_' + model_name + '_{0}'.format(subject) + '.nii'
         path_output = os.path.join(dir_result, name_output)
         data_output = load_nii(path_output)
-        # input brain masking from T1 template.
-        T1temp = load_nii(dir_brainmask)
-        T1temp = T1temp[:, :, lower_lim:upper_lim]
+
+        # Brain masking from subject brain mask
+        path_subject_brain_mask = os.path.join(dir_stroke, subject, "MASK.nii")
+        if os.path.exists(path_subject_brain_mask):
+            raw_brain_mask = load_nii(path_subject_brain_mask)
+        else:
+            # input brain masking from T1 MNI template.
+            raw_brain_mask = load_nii(path_generic_brain_mask)
+        raw_brain_mask = raw_brain_mask[:, :, lower_lim:upper_lim]
 
         if mask_contrast == 0:
             mask_name = 'DWI.nii'
@@ -134,7 +138,7 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
         if dwimask:
             path_DWI = dir_stroke + '{0}/'.format(subject) + 'DWI.nii'
             dwi = load_nii(path_DWI)
-            dwi = dwi[:, :, lower_lim:upper_lim] * (T1temp > 0)
+            dwi = dwi[:, :, lower_lim:upper_lim] * (raw_brain_mask > 0)
             mean_dwi = np.mean(dwi[np.nonzero(dwi)])
 
         # compute auc
@@ -145,13 +149,13 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
 
         if lesion_side != 'B':
             if lesion_side == 'L': ## If stroke in Left side of the image and Right side of the brain
-                T1temp[midline:, :, :] = 0
+                raw_brain_mask[midline:, :, :] = 0
             elif lesion_side == 'R': ## If stroke in Right side of the image and Left side of the brain
-                T1temp[:midline, :, :] = 0
+                raw_brain_mask[:midline, :, :] = 0
             else:
-                print('check code and data. Left lesion  = Right lesion ')
+                print('check code and data. Left lesion  = Right lesion OR empty lesion ')
         for index in range(data_gt.shape[2]):
-            brain_mask = (T1temp[:, :, index] > 0) * 1.
+            brain_mask = (raw_brain_mask[:, :, index] > 0) * 1.
             if mask_contrast < 9:
                 PWImask = np.maximum(0, np.nan_to_num(data_PWImask[:, :, index], 0))
                 brain_mask = brain_mask * (PWImask >0)

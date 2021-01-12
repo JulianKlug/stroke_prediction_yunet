@@ -82,8 +82,8 @@ def stroke_test(dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_source =
     print(subj_list)
     print('Load model in path:', dir_ckpt, filename_checkpoint)
     filepath_ckpt = os.path.join(dir_ckpt, filename_checkpoint)
-
-    model = load_model(filepath_ckpt[:-5]+'.h5',custom_objects={'test_loss': test_loss,# change if loss function changes
+    model_path = filepath_ckpt[:-5]+'.h5'
+    model = load_model(model_path, compile=False, custom_objects={'test_loss': test_loss,# change if loss function changes
                        'dice_coef': dice_coef,'dice_coef_loss':dice_coef_loss,
                        'seg_crossentropy':seg_crossentropy,'precision':precision,
                        'recall':recall,'f1_score':f1_score,'l1_loss':l1_loss,
@@ -175,8 +175,8 @@ def stroke_test(dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_source =
         proxy1 = nib.load(lesion_path)
 
 
-        flair_array = np.asarray(proxy.dataobj)
-        flair_pad_reshaped = data_reshape(flair_array,[shape_px_height,shape_px_width])
+        flair_array = np.asarray(proxy.dataobj)[..., 0]
+        flair_pad_reshaped = data_reshape(flair_array,[shape_px_width, shape_px_height])
         flair_pad = flair_pad_reshaped[:,:,lower_lim:upper_lim]
         lesion_array = np.asarray(proxy1.dataobj)
 
@@ -190,7 +190,7 @@ def stroke_test(dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_source =
         right_pad_dif = int(np.ceil((flair_pad.shape[2]-new_data_trans.shape[2])/2))
         new_data_trans = np.pad(new_data_trans,((0,0),(0,0),(left_pad_dif,right_pad_dif)),'constant',constant_values = 0)
         ## added 11/26 by Yannan to reshape the image
-        new_data_trans = data_reshape(new_data_trans, [91,109]).astype(np.float32)
+        new_data_trans = data_reshape(new_data_trans, [shape_px_width, shape_px_height]).astype(np.float32)
         ##
         new_image = nib.Nifti1Image(new_data_trans, proxy.affine)
         nib.save(new_image, os.path.join(output_path, export_name))
@@ -199,7 +199,7 @@ def stroke_test(dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_source =
         if output_flair:
             export_name1 = 'flair_'+model_name+'_'+subj_list[index_data]+'.nii'
             ## added 11/26 by Yannan to reshape the image
-            flair_pad = data_reshape(flair_pad, [91,109]).astype(np.float32)
+            flair_pad = data_reshape(flair_pad, [shape_px_width, shape_px_height]).astype(np.float32)
             ##
             new_image1 = nib.Nifti1Image(flair_pad, proxy.affine)
             nib.save(new_image1, os.path.join(output_path, export_name1))
@@ -212,7 +212,7 @@ def stroke_test(dir_stroke = '/data/yuanxie/stroke_preprocess173/', dir_source =
             right_pad_dif = int(np.ceil((flair_pad.shape[2]-new_data_gt_trans.shape[2])/2))
             new_data_gt_trans = np.pad(new_data_gt_trans,((0,0),(0,0),(left_pad_dif,right_pad_dif)),'constant',constant_values = 0)
             ## added 11/26 by Yannan to reshape the image
-            new_data_gt_trans = data_reshape(new_data_gt_trans, [91,109]).astype(np.float32)
+            new_data_gt_trans = data_reshape(new_data_gt_trans, [shape_px_width, shape_px_height]).astype(np.float32)
             ##
             new_image_gt = nib.Nifti1Image(new_data_gt_trans, proxy.affine)
             nib.save(new_image_gt, os.path.join(output_path, export_name2))
