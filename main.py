@@ -6,41 +6,43 @@ from create_fig_for_model import *
 from sklearn.model_selection import KFold, train_test_split
 
 # main input to function, change if needed
-dir_of_train = '/Users/jk1/temp/yunet_test/hd5_test'  # data folder that contains training data
-dir_of_test = '/Users/jk1/temp/yunet_test/hd5_test'  # data folder that contains testing data, since we are using 5-fold crossvalidation, its the same folder here.
+from utils import create_multiple_dirs
+
+model_name_ori = 'mini_test_model'  # change every time you train a new model.
+dir_of_train = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_hdf5_dataset'  # data folder that contains training data
+dir_of_test = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_hdf5_dataset'  # data folder that contains testing data, since we are using 5-fold crossvalidation, its the same folder here.
 list_all = np.array([f for f in os.listdir(dir_of_train) if os.path.isdir(os.path.join(dir_of_train, f))])
-dir_source = '/Users/jk1/temp/yunet_test/nifti_dataset'  # source image that used to overlap the model output and calculate AUC / dice
+dir_source = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_nifti_dataset'  # source image that used to overlap the model output and calculate AUC / dice
 ext_data = 'hdf5'
-out_main_dir = '/Users/jk1/temp/yunet_test/'
-log_dir = os.path.join(out_main_dir, 'log/')
-dir_ckpt = os.path.join(out_main_dir, 'checkpoints')
-predictions_dir = os.path.join(out_main_dir, 'model_predictions')
+out_main_dir = '/home/klug/output/yunet'
 num_epochs = 1
 image_dim = (79, 80, 96)
 num_contrast_input = 4  # how many image contrast are fed. if input is DWI and ADC, then it's 2 contrasts. in this example, the input has 3 contrasts.
 mask_contrast = 10  # default is 0, use DWI as mask; 10 is ignored
-gpu = '1'  # setup which GPU you want to use
+gpu = '0'  # setup which GPU you want to use
 lower_lim = 0  # the limit tells the test function to output only part of the image. usually corresponding to the dimension in preprocessed h5 files. lower limit for the slices to include in an image volume
 upper_lim = 79  # upper limit of the image volume
 path_generic_brain_mask = '/data/brain_mask.nii'  # if no subject-specific brain mask is found, generic MNI template is used in the test to calculate AUC/dice etc.
 follow_up_image_name = 'PCT'  # use PCT as mock image for now
-batch_size = 16
+batch_size = 25
 lr_init = 0.0005
 num_conv_per_pooling = 2
 num_poolings = 3
-num_of_aug = 1  # 1=not include mirrored image, 2=include mirrored image
+num_of_aug = 1  # 1=no augmentations, 2=include mirrored image
 model_select = 'dropout'
-model_name_ori = 'test_model'  # change every time you train a new model.
-output_path = os.path.join(predictions_dir, model_name_ori)
 random_state = 42
 n_folds = 2
-if not os.path.exists(predictions_dir):
-    os.mkdir(predictions_dir)
-if not os.path.exists(output_path):
-    os.mkdir(output_path)
-
 loss_mode = 'bycase'
 
+""" Preparing output directories """
+log_dir = os.path.join(out_main_dir, 'log')
+dir_ckpt = os.path.join(out_main_dir, 'checkpoints')
+model_dir_ckpt = os.path.join(dir_ckpt, model_name_ori)
+model_result_dir = os.path.join(out_main_dir, 'model_results')
+output_path = os.path.join(model_result_dir, model_name_ori)
+create_multiple_dirs([out_main_dir, model_result_dir, output_path, log_dir, dir_ckpt, model_dir_ckpt])
+
+""" Starting Cross-Validation """
 cv = 0
 train_val_test_fold_indices = []  # save indices used in every split
 kf = KFold(n_splits=n_folds, shuffle=True, random_state=random_state)
@@ -55,7 +57,7 @@ for train_index, temp_index in kf.split(list_all):
     # training
     stroke_train_img_segmentation(dir_of_train, subj_list_train, lr_init=lr_init, loss_mode=loss_mode, gpu=gpu,
                                   model_select=model_select, val_list=val_list, extension_data=ext_data,
-                                  log_dir=log_dir, dir_ckpt=dir_ckpt, filename_checkpoint=filename_checkpoint,
+                                  log_dir=log_dir, dir_ckpt=model_dir_ckpt, filename_checkpoint=filename_checkpoint,
                                   filename_model=filename_model, num_epochs=num_epochs,
                                   num_contrast_input=num_contrast_input,
                                   batch_size=batch_size, num_of_aug=num_of_aug,
@@ -63,7 +65,7 @@ for train_index, temp_index in kf.split(list_all):
                                   num_poolings=num_poolings, shape_px_width=image_dim[1], shape_px_height=image_dim[2])
     # generate output for test cases
     stroke_test(dir_stroke=dir_of_test, dir_source=dir_source, subj_list=subj_list_test, model_name=model_name,
-                dir_ckpt=dir_ckpt, filename_model=filename_model, filename_checkpoint=filename_checkpoint,
+                dir_ckpt=model_dir_ckpt, filename_model=filename_model, filename_checkpoint=filename_checkpoint,
                 num_contrast_input=num_contrast_input, output_path=output_path, lower_lim=lower_lim,
                 upper_lim=upper_lim, followup_image_name='PCT', shape_px_width=image_dim[1],
                 shape_px_height=image_dim[2])

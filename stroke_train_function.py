@@ -12,7 +12,7 @@ from subtle_generator import DataGenerator
 from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.optimizers import Adam
 from keras.models import load_model
-from keras.backend import set_session
+from keras import backend as K
 import tensorflow as tf
 
 
@@ -112,7 +112,7 @@ def stroke_train_img_segmentation(dir_of_train = '/data/yuanxie/stroke_preproces
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    set_session(tf.Session(config=config))
+    K.set_session(tf.Session(config=config))
     '''
     exclusion slices
     '''

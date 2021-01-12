@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import h5py
+import os
+
 def create_fig_for_model(results,output_path,figname = 'metrics.png',tablename = 'metrics.txt',comparable_level = []):
     '''
     this function plot the change of metrics as the threshold of the model changes
@@ -110,11 +111,11 @@ def create_roc(fpr,tpr,roc_auc,output_path, thresholds, figname = 'roc.png',tabl
     plt.ylabel('True Positive Rate')
     plt.title('Cutoff = {0:.2f}, Youden Index = {1:.2f}, sensitivity {2:.2f}, specificity {3:.2f}'.format(cutoff, max_youden,tpr[cutoff_index],1-fpr[cutoff_index]) )
     plt.legend(loc="lower right")
-    plt.savefig(output_path + figname)
+    plt.savefig(os.path.join(output_path, figname))
     plt.close()
     if datawrite:
         output_csv = np.column_stack((thresholds,fpr,tpr))
-        np.savetxt(output_path + tablename, output_csv, fmt='%4.3f,%4.3f,%4.3f', delimiter=",")
+        np.savetxt(os.path.join(output_path, tablename), output_csv, fmt='%4.3f,%4.3f,%4.3f', delimiter=",")
     print('data output =', datawrite, ', figure saved at:', output_path + figname)
     return cutoff
 
@@ -145,5 +146,5 @@ def save_dict(dict,output_path,filename,summary=True):
         output_csv = np.row_stack((np.array(header),output_csv,median,percentile25,percentile75))
     else:
         output_csv = np.row_stack((np.array(header), output_csv))
-    np.savetxt(output_path + filename, output_csv[:,1:], fmt='%s', delimiter=",")
+    np.savetxt(os.path.join(output_path, filename), output_csv[:,1:], fmt='%s', delimiter=",")
     return print('dictionary saved at ', output_path + filename, 'with summary', summary)

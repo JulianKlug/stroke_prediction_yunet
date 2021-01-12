@@ -180,7 +180,7 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
             pred = y_pred
             id = range(len(y_true))
             output_csv = np.column_stack((id,label,pred))
-            np.savetxt(dir_result + subject + '.csv', output_csv, fmt='%1.f,%1.f,%4.5f',delimiter=",")
+            np.savetxt(os.path.join(dir_result, subject + '.csv'), output_csv, fmt='%1.f,%1.f,%4.5f',delimiter=",")
         list_result['subject'].append(subject)
         list_result['auc'].append(auc_hemisphere)
         list_result['precision'].append(precision)
@@ -198,7 +198,7 @@ def stroke_test_metrics(dir_result = '/data/yuanxie/Enhao/stroke_cv',dir_stroke 
     if savedata:
         label_all = (all_y_true > threshold_true) * 1.
         output_csv_all = np.column_stack((label_all, all_y_pred))
-        np.savetxt(dir_result + 'all_pred.csv', output_csv_all,fmt='%1.f,%4.5f',delimiter=',')
+        np.savetxt(os.path.join(dir_result, 'all_pred.csv'), output_csv_all,fmt='%1.f,%4.5f',delimiter=',')
 
     all_auc_hemisphere, all_precision, all_recall, all_dice, all_spec, all_voldiff, all_volpred, all_f1score,fpr,tpr,thresholds = metrics_output(all_y_true, all_y_pred, threshold_true, threshold_pred)
     list_result_all = {'auc': all_auc_hemisphere, 'precision': all_precision, 'recall': all_recall,
