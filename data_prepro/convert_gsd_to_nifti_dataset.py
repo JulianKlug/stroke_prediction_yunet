@@ -1,6 +1,9 @@
+import argparse
 import os, json
 import nibabel as nib
 import numpy as np
+from tqdm import tqdm
+
 
 def convert_gsd_to_nifti_dataset(path_to_gsd_dataset: str, path_to_new_dataset_dir: str):
     params = np.load(path_to_gsd_dataset, allow_pickle=True)['params'].item()
@@ -22,7 +25,7 @@ def convert_gsd_to_nifti_dataset(path_to_gsd_dataset: str, path_to_new_dataset_d
     with open(os.path.join(path_to_new_dataset_dir, 'params.json'), 'w') as fp:
         json.dump(params, fp, indent=4)
 
-    for subj_idx, id in enumerate(ids):
+    for subj_idx, id in enumerate(tqdm(ids)):
         subj_path = os.path.join(path_to_new_dataset_dir, id)
         if not os.path.exists(subj_path):
             os.mkdir(subj_path)
@@ -34,3 +37,13 @@ def convert_gsd_to_nifti_dataset(path_to_gsd_dataset: str, path_to_new_dataset_d
         nib.save(subj_pct_img, os.path.join(subj_path, 'PCT.nii'))
         nib.save(subj_lesion_img, os.path.join(subj_path, 'LESION.nii'))
         nib.save(subj_mask_img, os.path.join(subj_path, 'MASK.nii'))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Convert Geneva Stroke Dataset into Nifti format')
+    parser.add_argument('dataset_path')
+    parser.add_argument('-o', '--outdir',  help='Name of output directory', required=True, default=None)
+
+    args = parser.parse_args()
+    convert_gsd_to_nifti_dataset(args.dataset_path, args.outdir)
+

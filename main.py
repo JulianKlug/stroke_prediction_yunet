@@ -8,30 +8,30 @@ from sklearn.model_selection import KFold, train_test_split
 # main input to function, change if needed
 from utils import create_multiple_dirs
 
-model_name_ori = 'mini_test_model'  # change every time you train a new model.
-dir_of_train = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_hdf5_dataset'  # data folder that contains training data
-dir_of_test = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_hdf5_dataset'  # data folder that contains testing data, since we are using 5-fold crossvalidation, its the same folder here.
+model_name_ori = '7channel_mirrored_model'  # change every time you train a new model.
+dir_of_train = '/home/gridsan/gleclerc/julian/data/yunet_datasets/padded_flipped_rescaled_with_ncct_with_core_with_penumbra_hdf5_dataset'  # data folder that contains training data
+dir_of_test = dir_of_train  # data folder that contains testing data, since we are using 5-fold crossvalidation, its the same folder here.
 list_all = np.array([f for f in os.listdir(dir_of_train) if os.path.isdir(os.path.join(dir_of_train, f))])
-dir_source = '/home/klug/working_data/yunet_datasets/padded_rescaled_gsd_pmap_nifti_dataset'  # source image that used to overlap the model output and calculate AUC / dice
+dir_source = '/home/gridsan/gleclerc/julian/data/yunet_datasets/padded_flipped_rescaled_with_ncct_with_core_with_penumbra_nifti_dataset'  # source image that used to overlap the model output and calculate AUC / dice
 ext_data = 'hdf5'
-out_main_dir = '/home/klug/output/yunet'
-num_epochs = 1
+out_main_dir = '/home/gridsan/gleclerc/julian/output/yunet'
+num_epochs = 250
 image_dim = (79, 80, 96)
-num_contrast_input = 4  # how many image contrast are fed. if input is DWI and ADC, then it's 2 contrasts. in this example, the input has 3 contrasts.
+num_contrast_input = 7  # how many image contrast are fed. if input is DWI and ADC, then it's 2 contrasts. in this example, the input has 3 contrasts.
 mask_contrast = 10  # default is 0, use DWI as mask; 10 is ignored
 gpu = '0'  # setup which GPU you want to use
 lower_lim = 0  # the limit tells the test function to output only part of the image. usually corresponding to the dimension in preprocessed h5 files. lower limit for the slices to include in an image volume
 upper_lim = 79  # upper limit of the image volume
 path_generic_brain_mask = '/data/brain_mask.nii'  # if no subject-specific brain mask is found, generic MNI template is used in the test to calculate AUC/dice etc.
 follow_up_image_name = 'PCT'  # use PCT as mock image for now
-batch_size = 25
+batch_size = 16
 lr_init = 0.0005
 num_conv_per_pooling = 2
 num_poolings = 3
-num_of_aug = 1  # 1=no augmentations, 2=include mirrored image
+num_of_aug = 1  # legacy from yu et al - always use 1
 model_select = 'dropout'
 random_state = 42
-n_folds = 2
+n_folds = 5
 loss_mode = 'bycase'
 
 """ Preparing output directories """
