@@ -3,16 +3,14 @@ import numpy as np
 from keras import backend as K
 # use skimage metrics
 from skimage.measure import compare_mse, compare_nrmse, compare_psnr, compare_ssim
-# psnr with TF
-import pdb
 
-from keras.losses import mean_absolute_error, mean_squared_error, binary_crossentropy
+from tensorflow.keras.losses import mean_absolute_error, mean_squared_error, binary_crossentropy
 import keras_contrib.backend as KC
-from keras import backend as K
-from keras import models
-from keras.applications.vgg16 import VGG16
+from tensorflow.keras import backend as K
+from tensorflow.keras import models
+from tensorflow.keras.applications.vgg16 import VGG16
 
-from tensorflow import log as tf_log
+from tensorflow.math import log as tf_log
 from tensorflow import constant as tf_constant
 import tensorflow as tf
 
@@ -193,7 +191,7 @@ def seg_crossentropy_weighted_bycase(y_true, y_pred):
     ratio = neg_sample / pos_sample
     ratio_one = ratio /(ratio + 1)
     ratio_zero = 1 / (ratio + 1)
-    loss = -2*K.mean(ratio_one*y_true_f*tf.log(y_pred_f+epsilon) + ratio_zero*(1-y_true_f)*tf.log(1-y_pred_f+epsilon))
+    loss = -2*K.mean(ratio_one*y_true_f*tf.math.log(y_pred_f+epsilon) + ratio_zero*(1-y_true_f)*tf.math.log(1-y_pred_f+epsilon))
     return loss
 
 def roc_auc_score(y_true,y_pred):

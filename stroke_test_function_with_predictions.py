@@ -1,16 +1,6 @@
 
 ''' basic dependencies '''
-import numpy as np
-import os
-import json
-import datetime
-from time import time
-import pydicom
-import nibabel as nib
-import h5py
-import pdb
-
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from subtle_fileio import *
 from subtle_metrics import *
 from subtle_generator import DataGenerator

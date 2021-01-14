@@ -1,15 +1,13 @@
 
-import tensorflow as tf
-from keras.models import Model
-from keras.layers import Input, merge, Conv2D, Conv2DTranspose, BatchNormalization, Convolution2D, MaxPooling2D, UpSampling2D, Dense, concatenate,Dropout, SpatialDropout2D,Activation,Add,multiply
-from keras.layers.merge import add as keras_add
-from keras.optimizers import Adam
-from keras.losses import mean_absolute_error, mean_squared_error
-from keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose, BatchNormalization, Convolution2D, MaxPooling2D, UpSampling2D, Dense, concatenate,Dropout, SpatialDropout2D,Activation,Add,multiply
+from tensorflow.keras.layers import add as keras_add
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import mean_absolute_error, mean_squared_error
+from tensorflow.keras import backend as K
 from subtle_metrics import mixedLoss
-from keras.models import model_from_yaml, model_from_json
-from keras.layers.core import Activation, Layer
-from keras.regularizers import l2,l1
+from tensorflow.keras.models import model_from_yaml, model_from_json
+from tensorflow.keras.layers import Activation, Layer
 
 import numpy as np
 

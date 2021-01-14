@@ -9,11 +9,8 @@ from subtle_fileio import *
 from network import *
 from subtle_metrics import *
 from subtle_generator import DataGenerator
-from keras.callbacks import ModelCheckpoint, TensorBoard
-from keras.optimizers import Adam
-from keras.models import load_model
-from keras import backend as K
-import tensorflow as tf
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
+from tensorflow.keras.optimizers import Adam
 
 
 def get_volume_info_from_dir(dict_sample_info, list_subjects,ext_data,num_of_aug):
@@ -108,11 +105,11 @@ def stroke_train_img_segmentation(dir_of_train = '/data/yuanxie/stroke_preproces
     '''
     setup gpu
     '''
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
-    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    K.set_session(tf.Session(config=config))
+    # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+    # os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+    # config = tf.ConfigProto()
+    # config.gpu_options.allow_growth = True
+    # K.set_session(tf.Session(config=config))
     '''
     exclusion slices
     '''
@@ -156,7 +153,7 @@ def stroke_train_img_segmentation(dir_of_train = '/data/yuanxie/stroke_preproces
     '''
     setup model
     '''
-    setKerasMemory(keras_memory)
+    # setKerasMemory(keras_memory)
     loss_monitoring = [dice_coef, seg_crossentropy, precision, recall, l1_loss]
 
 
