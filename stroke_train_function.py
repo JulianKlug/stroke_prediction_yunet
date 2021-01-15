@@ -105,11 +105,11 @@ def stroke_train_img_segmentation(dir_of_train = '/data/yuanxie/stroke_preproces
     '''
     setup gpu
     '''
-    # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
-    # os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    # config = tf.ConfigProto()
-    # config.gpu_options.allow_growth = True
-    # K.set_session(tf.Session(config=config))
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    tf.compat.v1.keras.backend.set_session(tf.compat.v1.Session(config=config))
     '''
     exclusion slices
     '''

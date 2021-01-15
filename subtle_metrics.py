@@ -1,11 +1,11 @@
 import tflearn
 import numpy as np
-from keras import backend as K
+from tensorflow.keras import backend as KC
 # use skimage metrics
 from skimage.measure import compare_mse, compare_nrmse, compare_psnr, compare_ssim
 
 from tensorflow.keras.losses import mean_absolute_error, mean_squared_error, binary_crossentropy
-import keras_contrib.backend as KC
+# import keras_contrib.backend as KC
 from tensorflow.keras import backend as K
 from tensorflow.keras import models
 from tensorflow.keras.applications.vgg16 import VGG16

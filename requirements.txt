@@ -9,5 +9,4 @@ scikit-image
 tflearn==0.5
 # tensorflow==2.4.0
 tensorflow-gpu==2.4.0
-keras==2.2.5
 git+https://www.github.com/keras-team/keras-contrib.git
